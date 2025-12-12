@@ -29,9 +29,10 @@ module.exports = {
     const publico = interaction.options.getString('publico');
     const objetivo = interaction.options.getString('objetivo');
 
-    await interaction.reply('🤖 Gerando anúncio com IA...');
-
     try {
+      // Resposta DEFER pra evitar "Unknown interaction"
+      await interaction.deferReply();
+
       const anuncio = await gerarAnuncio(produto, publico, objetivo);
 
       await interaction.editReply({
