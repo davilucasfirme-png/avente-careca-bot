@@ -4,14 +4,28 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-async function gerarAnuncio(produto, publico, objetivo) {
+async function gerarAnuncio(produto, publico, objetivo, idioma = "pt") {
+
+  const idiomas = {
+    pt: `
+Crie um anúncio persuasivo em Português (Brasil):
+`,
+    en: `
+Create a persuasive marketing ad in English:
+`,
+    es: `
+Crea un anuncio persuasivo en Español:
+`
+  };
+
   const prompt = `
-Crie um anúncio persuasivo:
-Produto: ${produto}
-Público: ${publico}
-Objetivo: ${objetivo}
-Use emojis e chamada para ação.
-Texto curto para redes sociais.
+${idiomas[idioma]}
+Product: ${produto}
+Target audience: ${publico}
+Objective: ${objetivo}
+
+Use emojis and a strong call to action.
+Short text for social media.
 `;
 
   const response = await openai.chat.completions.create({
