@@ -4,13 +4,9 @@ const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
-/* 🔎 DEBUG (remova depois que funcionar) */
-console.log('DEBUG TOKEN:', process.env.TOKEN);
-console.log('DEBUG CLIENT_ID:', process.env.CLIENT_ID);
-console.log('DEBUG GUILD_ID:', process.env.GUILD_ID);
-
 const commands = [];
 
+// Lê comandos da pasta commands/*
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -24,29 +20,28 @@ for (const folder of commandFolders) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
 
-    if ('data' in command && 'execute' in command) {
+    if (command.data && command.execute) {
       commands.push(command.data.toJSON());
-    } else {
-      console.log(`⚠️ Comando inválido em ${filePath}`);
     }
   }
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+// DEBUG correto
+console.log('DEBUG TOKEN:', process.env.DISCORD_TOKEN ? 'OK' : 'MISSING');
+console.log('DEBUG CLIENT_ID:', process.env.CLIENT_ID);
+console.log(`🚀 Enviando ${commands.length} comandos globais...`);
+
+const rest = new REST({ version: '10' })
+  .setToken(process.env.DISCORD_TOKEN);
 
 (async () => {
   try {
-    console.log(`🚀 Enviando ${commands.length} comandos...`);
-
     await rest.put(
-      Routes.applicationGuildCommands(
-        process.env.CLIENT_ID,
-        process.env.GUILD_ID
-      ),
+      Routes.applicationCommands(process.env.CLIENT_ID),
       { body: commands }
     );
 
-    console.log('✅ Comandos registrados com sucesso!');
+    console.log('✅ Comandos globais registrados com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao registrar comandos:', error);
   }
