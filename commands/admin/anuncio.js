@@ -4,44 +4,60 @@ const { gerarAnuncio } = require('../../util/adGenerator');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('anuncio')
-    .setDescription('Gera um anúncio automático com IA')
+    .setDescription('Generate an ad with AI')
     .addStringOption(option =>
       option
         .setName('produto')
-        .setDescription('Produto ou serviço')
+        .setDescription('Product or service')
         .setRequired(true)
     )
     .addStringOption(option =>
       option
         .setName('publico')
-        .setDescription('Público-alvo')
+        .setDescription('Target audience')
         .setRequired(true)
     )
     .addStringOption(option =>
       option
         .setName('objetivo')
-        .setDescription('Objetivo do anúncio')
+        .setDescription('Ad objective')
         .setRequired(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('idioma')
+        .setDescription('Language')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Português', value: 'pt' },
+          { name: 'English', value: 'en' },
+          { name: 'Español', value: 'es' }
+        )
     ),
 
   async execute(interaction) {
     const produto = interaction.options.getString('produto');
     const publico = interaction.options.getString('publico');
     const objetivo = interaction.options.getString('objetivo');
+    const idioma = interaction.options.getString('idioma');
 
     try {
-      // Resposta DEFER pra evitar "Unknown interaction"
       await interaction.deferReply();
 
-      const anuncio = await gerarAnuncio(produto, publico, objetivo);
+      const anuncio = await gerarAnuncio(
+        produto,
+        publico,
+        objetivo,
+        idioma
+      );
 
       await interaction.editReply({
-        content: `📢 **ANÚNCIO GERADO:**\n\n${anuncio}`
+        content: `📢 **AD GENERATED:**\n\n${anuncio}`
       });
 
-    } catch (err) {
-      console.error(err);
-      await interaction.editReply('❌ Erro ao gerar anúncio.');
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply('❌ Error generating ad.');
     }
   }
 };
